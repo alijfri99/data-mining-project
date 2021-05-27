@@ -1,7 +1,7 @@
 import pandas as pd
 from apyori import apriori
 
-# question 1
+# question 5
 
 dataset = pd.read_csv("divar_posts_dataset.csv")
 
