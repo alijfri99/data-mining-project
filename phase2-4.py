@@ -5,6 +5,8 @@ from apyori import apriori
 
 dataset = pd.read_csv("divar_posts_dataset.csv")
 
+# dataset['created_at'] = dataset['created_at'].str[0:-5]
+
 dataset = dataset[['platform', 'created_at']]
 print(dataset.head())
 print(dataset.isna().sum())
