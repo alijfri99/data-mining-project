@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
-from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import silhouette_score
 
 dataset = pd.read_csv("divar_posts_dataset.csv")
 
@@ -10,35 +11,76 @@ dataset = dataset[['city', 'cat1', 'cat2', 'cat3']]
 dataset.dropna(inplace=True)
 group = dataset.groupby(['city', 'cat1', 'cat2', 'cat3'])
 dataset = group.size().to_frame(name='count').reset_index()
-for index, row in dataset.iterrows():
-    print(index, row)
-input()
+dataset['cat'] = dataset['cat1'] + '-' + dataset['cat2'] + '-' + dataset['cat3']
+dataset = dataset[['city', 'cat', 'count']]
 
-for column in dataset.columns:
-    label_encoder = LabelEncoder()
-    dataset[column] = label_encoder.fit_transform(dataset[column])
+print("Creating the dictionary...")
 
-true_labels = dataset['city']
-dataset = dataset.drop('city', axis=1)
-dataset = np.array(dataset.astype(float))
+my_dict = dict()
+
+for city in dataset['city'].unique():
+    if city not in my_dict:
+        my_dict[city] = dict()
+
+    for cat in dataset['cat'].unique():
+        if dataset[(dataset['city'] == city) & (dataset['cat'] == cat)].empty:
+            my_dict[city][cat] = 0
+        else:
+            my_dict[city][cat] = dataset.loc[(dataset['city'] == city) & (dataset['cat'] == cat)]['count'].values[0]
+
+# Converting the dictionary to a list of lists
+dataset = []
+for city in my_dict.keys():
+    dataset.append([cat_count for cat_count in my_dict[city].values()])
+
+dataset = np.array(dataset).astype(float)
 scaler = MinMaxScaler()
 scaler.fit(dataset)
 dataset = scaler.transform(dataset)
-true_labels = np.array(true_labels)
+print(dataset)
 
 print("Clustering...")
 
-kmeans = KMeans(n_clusters=9)
+kmeans_results = dict()
+
+for k in range(2, 9):
+    kmeans = KMeans(n_clusters=k)
+    kmeans.fit(dataset)
+    kmeans_results[k] = silhouette_score(dataset, kmeans.labels_, metric='euclidean')
+
+plt.figure()
+plt.plot(list(kmeans_results.keys()), list(kmeans_results.values()))
+plt.show()
+
+k = int(input("Which k yielded the best silhouette score? "))
+print(dataset)
+
+kmeans = KMeans(n_clusters=k)
 kmeans.fit(dataset)
+print(kmeans.labels_)
+print(silhouette_score(dataset, kmeans.labels_, metric='euclidean'))
+print("*****")
 
-print("Calculating the clustering accuraacy...")
+agglomerative = AgglomerativeClustering()
+agglomerative.fit(dataset)
+print(agglomerative.labels_)
+print(silhouette_score(dataset, agglomerative.labels_, metric='euclidean'))
+print("*****")
 
-correct = 0
-for i in range(len(dataset)):
-    if i % 1000 == 0:
-        print(i)
-    prediction = kmeans.predict(dataset[i].reshape(-1, len(dataset[i])))
-    if prediction[0] == true_labels[i]:
-        correct += 1
+scan = DBSCAN(eps=3, min_samples=2)
+scan.fit(dataset)
+print(scan.labels_)
+print(silhouette_score(dataset, scan.labels_, metric='euclidean'))
+print("*****")
 
-print("Accuracy:", correct/len(dataset))
+scan2 = DBSCAN(eps=1.5, min_samples=2)
+scan2.fit(dataset)
+print(scan2.labels_)
+print(silhouette_score(dataset, scan2.labels_, metric='euclidean'))
+print("*****")
+
+scan3 = DBSCAN(eps=0.8, min_samples=3)
+scan3.fit(dataset)
+print(scan3.labels_)
+print(silhouette_score(dataset, scan3.labels_, metric='euclidean'))
+print("*****")
