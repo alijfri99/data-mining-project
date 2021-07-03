@@ -1,41 +1,12 @@
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
+import pickle
 from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
 from sklearn.metrics import silhouette_score
 
-dataset = pd.read_csv("divar_posts_dataset.csv")
-
-dataset = dataset[['city', 'cat1', 'cat2', 'cat3']]
-dataset.dropna(inplace=True)
-group = dataset.groupby(['city', 'cat1', 'cat2', 'cat3'])
-dataset = group.size().to_frame(name='count').reset_index()
-dataset['cat'] = dataset['cat1'] + '-' + dataset['cat2'] + '-' + dataset['cat3']
-dataset = dataset[['city', 'cat', 'count']]
-
-print("Creating the dictionary...")
-
-my_dict = dict()
-
-for city in dataset['city'].unique():
-    my_dict[city] = dict()
-
-    for cat in dataset['cat'].unique():
-        if dataset[(dataset['city'] == city) & (dataset['cat'] == cat)].empty:
-            my_dict[city][cat] = 0
-        else:
-            my_dict[city][cat] = dataset.loc[(dataset['city'] == city) & (dataset['cat'] == cat)]['count'].values[0]
-
-# Converting the dictionary to a list of lists
-dataset = []
-for city in my_dict.keys():
-    dataset.append([cat_count for cat_count in my_dict[city].values()])
-
-dataset = np.array(dataset).astype(float)
-scaler = MinMaxScaler()
-scaler.fit(dataset)
-dataset = scaler.transform(dataset)
+dataset = np.load('divar_clustering.npy')
+dataset_dict_file = open('divar_clustering_dict.pkl', 'rb')
+dataset_dict = pickle.load(dataset_dict_file)
 
 print("Clustering...")
 
