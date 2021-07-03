@@ -19,8 +19,7 @@ print("Creating the dictionary...")
 my_dict = dict()
 
 for city in dataset['city'].unique():
-    if city not in my_dict:
-        my_dict[city] = dict()
+    my_dict[city] = dict()
 
     for cat in dataset['cat'].unique():
         if dataset[(dataset['city'] == city) & (dataset['cat'] == cat)].empty:
@@ -53,7 +52,6 @@ plt.plot(list(kmeans_results.keys()), list(kmeans_results.values()))
 plt.show()
 
 k = int(input("Which k yielded the best silhouette score? "))
-print(dataset)
 
 kmeans = KMeans(n_clusters=k)
 kmeans.fit(dataset)
