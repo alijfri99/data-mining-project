@@ -87,7 +87,6 @@ for label in set(kmeans.labels_):
     results[label] = list()
 
 i = 0
-print(my_dict.keys())
 for key in my_dict.keys():
     prediction = kmeans.predict(dataset[i].reshape(-1, len(dataset[i])))[0]
     results[prediction].append(key)

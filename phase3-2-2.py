@@ -7,6 +7,7 @@ from sklearn.metrics import silhouette_score
 dataset = np.load('digikala_clustering.npy')
 dataset_dict_file = open('digikala_clustering_dict.pkl', 'rb')
 dataset_dict = pickle.load(dataset_dict_file)
+dataset_dict_file.close()
 
 print("Clustering...")
 
