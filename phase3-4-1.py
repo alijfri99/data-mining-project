@@ -7,7 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 dataset = pd.read_csv("divar_posts_dataset.csv")
 dataset = dataset[['cat1', 'cat2', 'cat3', 'price']]
 dataset.dropna(inplace=True)
-dataset = dataset[dataset['price'] != -1]
+dataset = dataset.loc[dataset['price'] != -1]
 group = dataset.groupby(['cat1', 'cat2', 'cat3', 'price'])
 dataset = group.size().to_frame(name='count').reset_index()
 dataset['cat'] = dataset['cat1'] + '-' + dataset['cat2'] + '-' + dataset['cat3']
