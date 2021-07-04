@@ -1,5 +1,9 @@
 import pandas as pd
 import re
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
 dataset = pd.read_csv('divar_posts_dataset.csv')
 dataset = dataset[['brand', 'cat1', 'cat2', 'cat3', 'price']]
@@ -18,4 +22,18 @@ dataset['brand'].replace({' Peugeot Pars': 'Peugeot Pars', '  / RD/ROA': 'RD/ROA
                           ' Tondar 90': 'Tondar 90', 'Sony Ericsson ': 'Sony Ericsson',
                           ' Hyundai Sonata': 'Hyundai Sonata', ' Peugeot 405': 'Peugeot 405'}, inplace=True)
 
-print(dataset['brand'].unique(), len(dataset['brand'].unique()))
+dataset = pd.get_dummies(dataset, columns=['brand', 'cat1', 'cat2', 'cat3'])
+dataset['temp'] = 1
+dataset[['price', 'temp']] = MinMaxScaler().fit_transform(dataset[['price', 'temp']])
+dataset = dataset.drop('temp', axis=1)
+
+y = dataset['price']
+X = dataset.drop('price', axis=1)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+
+tree = DecisionTreeRegressor(max_depth=len(X_train.columns), min_samples_leaf=0.1, random_state=3)
+tree.fit(X_train, y_train)
+
+y_pred = tree.predict(X_test)
+print(mean_squared_error(y_pred, y_test))
