@@ -36,19 +36,19 @@ print(agglomerative.labels_)
 print(silhouette_score(dataset, agglomerative.labels_, metric='euclidean'))
 print("*****")
 
-scan = DBSCAN(eps=20, min_samples=2)
+scan = DBSCAN(eps=0.5, min_samples=2)
 scan.fit(dataset)
 print(scan.labels_)
 print(silhouette_score(dataset, scan.labels_, metric='euclidean'))
 print("*****")
 
-scan2 = DBSCAN(eps=1.5, min_samples=2)
+scan2 = DBSCAN(eps=0.55, min_samples=2)
 scan2.fit(dataset)
 print(scan2.labels_)
 print(silhouette_score(dataset, scan2.labels_, metric='euclidean'))
 print("*****")
 
-scan3 = DBSCAN(eps=1.3, min_samples=3)
+scan3 = DBSCAN(eps=0.6, min_samples=3)
 scan3.fit(dataset)
 print(scan3.labels_)
 print(silhouette_score(dataset, scan3.labels_, metric='euclidean'))
@@ -60,7 +60,7 @@ for label in set(kmeans.labels_):
 
 i = 0
 for key in dataset_dict.keys():
-    prediction = kmeans.predict(dataset[i].reshape(-1, len(dataset[i])))[0]
+    prediction = kmeans.predict(dataset[i].reshape(1, -1))[0]
     results[prediction].append(key)
     i += 1
 

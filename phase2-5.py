@@ -13,7 +13,6 @@ print(dataset['cat3'].isna().sum())
 dataset_q5_1 = dataset[['platform', 'cat1']]
 print(dataset_q5_1.isna().sum())
 print(dataset_q5_1.head())
-print(dataset_q5_1.isna().sum())
 dataset_q5_1 = dataset_q5_1.values.tolist()
 rules_5_1 = apriori(dataset_q5_1, min_support=0.01, min_confidence=0.2, min_lift=1.000001)
 
